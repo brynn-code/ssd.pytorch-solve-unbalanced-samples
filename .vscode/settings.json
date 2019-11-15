@@ -1,0 +1,10 @@
+{
+    "python.pythonPath": "/opt/anaconda3/envs/data/bin/python",
+    "python.venvPath": "E:\\envs",
+    "python.venvFolders": [
+        "envs",
+        ".pyenv",
+        ".direnv",
+        ".env"
+    ]
+}
