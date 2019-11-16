@@ -8,8 +8,7 @@ from __future__ import print_function
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
-from torch.autograd import Variable
-from data import SIXray_ROOT, SIXrayAnnotationTransform, SIXrayDetection, BaseTransform
+from torch.autograd import Variablefrom SIXray import SIXray_ROOT, SIXrayAnnotationTransform, SIXrayDetection, BaseTransform
 from data import SIXray_CLASSES as labelmap
 import torch.utils.data as data
 
@@ -166,20 +165,6 @@ def parse_rec(filename,imgpath):
                                   float(ymax) - 1]
             objects.append(obj_struct)
 
-    '''
-    for obj in tree.findall('object'):
-        obj_struct = {}
-        obj_struct['name'] = obj.find('name').text.lower().strip()
-        obj_struct['pose'] = obj.find('pose').text
-        obj_struct['truncated'] = int(obj.find('truncated').text)
-        obj_struct['difficult'] = int(obj.find('difficult').text)
-        bbox = obj.find('bndbox')
-        obj_struct['bbox'] = [float(bbox.find('xmin').text) - 1,
-                              float(bbox.find('ymin').text) - 1,
-                              float(bbox.find('xmax').text) - 1,
-                              float(bbox.find('ymax').text) - 1]
-        objects.append(obj_struct)
-    '''
     return objects
 
 
@@ -327,25 +312,12 @@ cachedir: Directory for caching the annotations
     with open(imagesetfile, 'r') as f:
         lines = f.readlines()
     imagenames = [x.strip() for x in lines]
-
-    '''
-    imagenames = []
-    listdir = os.listdir(osp.join('%s' % args.SIXray_root, 'Annotation'))
-    for name in listdir:
-        imagenames.append(osp.splitext(name)[0])
-    '''
-
     if not os.path.isfile(cachefile):
         # print('not os.path.isfile')
         # load annots
         recs = {}
         for i, imagename in enumerate(imagenames):
             recs[imagename] = parse_rec(annopath % (imagename),imgpath)
-            '''
-            if i % 100 == 0:
-                print('Reading annotation for {:d}/{:d}'.format(
-                    i + 1, len(imagenames)))
-            '''
         # save
         # print('Saving cached annotations to {:s}'.format(cachefile))
         with open(cachefile, 'wb') as f:
@@ -446,8 +418,6 @@ cachedir: Directory for caching the annotations
 
 def test_net(save_folder, net, cuda, dataset, transform, top_k,
              im_size=300, thresh=0.05):
-    # //
-    # //
     num_images = len(dataset)
     # all detections are collected into:
     #    all_boxes[cls][image] = N x 5 array of detections in

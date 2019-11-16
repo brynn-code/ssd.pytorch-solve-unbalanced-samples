@@ -5,6 +5,8 @@ https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py
 
 Updated by: Ellis Brown, Max deGroot
 """
+from config import HOME
+
 import os
 import os.path as osp
 import sys
@@ -18,33 +20,11 @@ if sys.version_info[0] == 2:
 else:
     import xml.etree.ElementTree as ET
 
-'''
-SIXray_CLASSES = (  # always index 0
-    'gun', 'knife', 'wrench', 'pliers',
-    'scissors'
-    )
-'''
-
-'''
-SIXray_CLASSES = (
-    '带电芯充电宝', '不带电芯充电宝', '劣质充电宝', '其它充电宝',
-    '金属打火机' '非金属打火机', '点烟器', '异形打火机', '镁棒', '其它火种',
-    '扳手', '螺丝刀', '钳子', '其他日常工具',
-    '管制刀具', '直刀', '折叠刀', '异形刀', '剪刀', '其它刀具',
-    '电击器', '手铐', '警鞭', '弩', '其它军警器具',
-    '手枪', '长枪', '仿真枪', '枪支部件', '其它枪支',
-    '子弹', '空包弹', '信号弹', '其它弹药',
-    '液化石油气', 'ZIPPO油', '打火机气', '压缩气体瓶', '其它危险品',
-    '烟花', '礼花', '鞭炮', '烟饼（包）', '其它烟火制品',
-    '雷管', '拉火管', '导火索', '炸药', '爆炸装置', '其它爆炸装置'
-)
-'''
-
 SIXray_CLASSES = (
     '带电芯充电宝', '不带电芯充电宝'
 )
 # note: if you used our download scripts, this should be right
-SIXray_ROOT = "/media/trs2/Xray20190723/"
+SIXray_ROOT = HOME
 
 
 class SIXrayAnnotationTransform(object):

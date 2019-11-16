@@ -2,4 +2,4 @@
 import os.path
 
 # gets home dir cross platform
-HOME = os.path.expanduser("~")
+HOME = os.path.expanduser("~").replace("\\", "/")+"/work/"
