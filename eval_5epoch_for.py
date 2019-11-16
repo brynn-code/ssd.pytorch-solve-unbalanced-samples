@@ -41,11 +41,11 @@ os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Evaluation')
 parser.add_argument('--trained_model',
-                    default="", type=str,
+                    default="weights/ssd300_mAP_77.43_v2.pth", type=str,
                     help='Trained state_dict file path to open')
 parser.add_argument(  # '--save_folder', default='/media/dsg3/husheng/eval/', type=str,
     '--save_folder',
-    default="", type=str,
+    default="eval_res/", type=str,
     help='File path to save results')
 parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')

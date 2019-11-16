@@ -1,4 +1,6 @@
 from data import *
+from SIXray import *
+from config import HOME
 from utils.augmentations import SSDAugmentation
 from layers.modules import MultiBoxLoss
 from ssd import build_ssd
@@ -24,9 +26,7 @@ parser = argparse.ArgumentParser(
     description="Single Shot MultiBox Detector Training With Pytorch"
 )
 train_set = parser.add_mutually_exclusive_group()
-parser.add_argument(
-    "--dataset", default="VOC", choices=["VOC", "COCO"], type=str, help="VOC or COCO"
-)
+parser.add_argument("--dataset", default=HOME + "train.txt")
 parser.add_argument(
     "--dataset_root", default=VOC_ROOT, help="Dataset root directory path"
 )
@@ -49,7 +49,7 @@ parser.add_argument(
     "--num_workers", default=4, type=int, help="Number of workers used in dataloading"
 )
 parser.add_argument(
-    "--cuda", default=True, type=str2bool, help="Use CUDA to train model"
+    "--cuda", default=False, type=str2bool, help="Use CUDA to train model"
 )
 parser.add_argument(
     "--lr", "--learning-rate", default=1e-3, type=float, help="initial learning rate"
@@ -89,9 +89,9 @@ if not os.path.exists(args.save_folder):
 def train():
     args.dataset_root = SIXray_ROOT
     cfg = coco
-    dataset = COCODetection(
+    dataset = SIXrayDetection(
         root=args.dataset_root,
-        image_sets="",
+        image_sets=HOME + "train.id",
         transform=SSDAugmentation(cfg["min_dim"], MEANS),
     )
 
@@ -107,13 +107,13 @@ def train():
         net = torch.nn.DataParallel(ssd_net)
         cudnn.benchmark = True
 
-    if args.resume:
-        print("Resuming training, loading {}...".format(args.resume))
-        ssd_net.load_weights(args.resume)
-    else:
-        vgg_weights = torch.load(args.save_folder + args.basenet)
-        print("Loading base network...")
-        ssd_net.vgg.load_state_dict(vgg_weights)
+    # if args.resume:
+    #     print("Resuming training, loading {}...".format(args.resume))
+    #     ssd_net.load_weights(args.resume)
+    # else:
+    #     vgg_weights = torch.load(args.save_folder + args.basenet)
+    #     print("Loading base network...")
+    #     ssd_net.vgg.load_state_dict(vgg_weights)
 
     if args.cuda:
         net = net.cuda()

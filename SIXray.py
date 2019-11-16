@@ -153,20 +153,9 @@ class SIXrayDetection(data.Dataset):
         # self.name = dataset_name
         self.name = "Xray0723_bat_core_coreless"
         # self._annopath = osp.join('%s' % self.root, 'Annotation', '%s.xml')
-        self._annopath = osp.join(
-            "%s" % self.root, "Anno_core_coreless_battery_sub_2000_500", "%s.txt"
-        )
+        self._annopath = osp.join("%s" % self.root, "train_data/Annotation/", "%s.txt")
         # self._imgpath = osp.join('%s' % self.root, 'Image', '%s.jpg')
-        self._imgpath = osp.join(
-            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.TIFF"
-        )
-        ###这尼玛还有小写的tiff？
-        self._imgpath1 = osp.join(
-            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.tiff"
-        )
-        self._imgpath_jpg = osp.join(
-            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.jpg"
-        )
+        self._imgpath = osp.join("%s" % self.root, "train_data/Image/", "%s.jpg")
         self.ids = list()
 
         # listdir = os.listdir(osp.join('%s' % self.root, 'Annotation'))
@@ -199,13 +188,10 @@ class SIXrayDetection(data.Dataset):
         # print(self._imgpath % img_id)
         img = cv2.imread(self._imgpath % img_id)
         if img is None:
-            img = cv2.imread(self._imgpath1 % img_id)
-        if img is None:
-            img = cv2.imread(self._imgpath_jpg % img_id)
-
-        if img is None:
             print("\nwrong\n")
-            print(self._imgpath_jpg % img_id)
+        else:
+            print("\ndone\n")
+        print(self._imgpath % img_id)
 
         # print()
         height, width, channels = img.shape
