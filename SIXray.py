@@ -20,9 +20,7 @@ if sys.version_info[0] == 2:
 else:
     import xml.etree.ElementTree as ET
 
-SIXray_CLASSES = (
-    '带电芯充电宝', '不带电芯充电宝'
-)
+SIXray_CLASSES = ("带电芯充电宝", "不带电芯充电宝")
 # note: if you used our download scripts, this should be right
 SIXray_ROOT = HOME
 
@@ -43,7 +41,8 @@ class SIXrayAnnotationTransform(object):
     def __init__(self, class_to_ind=None, keep_difficult=False):
         self.class_to_ind = class_to_ind or dict(
             # zip(SIXray_CLASSES, range(len(SIXray_CLASSES))))
-            zip(SIXray_CLASSES, range(len(SIXray_CLASSES))))
+            zip(SIXray_CLASSES, range(len(SIXray_CLASSES)))
+        )
         self.keep_difficult = keep_difficult
         # 添加的记录所有小类总数
         self.type_dict = {}
@@ -63,7 +62,7 @@ class SIXrayAnnotationTransform(object):
 
         ###读取所有类
         # class_path = "C:/Users/石玉峰/PycharmProjects/untitled1/package2/class.xml"
-        '''
+        """
         class_path = SIXray_ROOT + "class.xml"
         tree = ET.parse(class_path)
         class_root = tree.getroot()
@@ -79,18 +78,18 @@ class SIXrayAnnotationTransform(object):
                     one_dict[grandson.text] = 0
             self.type_dict[type_name] = one_dict
         #print(self.type_dict)
-        '''
+        """
         # 遍历Annotation
         # root_annotation = '/media/dsg3/datasets/Xray20190704/Annotation/'
         res = []
-        with open(target, "r", encoding='utf-8') as f1:
+        with open(target, "r", encoding="utf-8") as f1:
             dataread = f1.readlines()
         for annotation in dataread:
             bndbox = []
             temp = annotation.split()
             name = temp[1]
             # 只读两类
-            if name != '带电芯充电宝' and name != '不带电芯充电宝':
+            if name != "带电芯充电宝" and name != "不带电芯充电宝":
                 continue
             xmin = int(temp[2]) / width
             # 只读取V视角的
@@ -137,38 +136,50 @@ class SIXrayDetection(data.Dataset):
             (default: 'VOC2007')
     """
 
-    def __init__(self, root,
-                 image_sets,
-                 transform=None, target_transform=SIXrayAnnotationTransform(),
-                 # dataset_name='SIXray'):
-                 dataset_name='SIXray'):
+    def __init__(
+        self,
+        root,
+        image_sets,
+        transform=None,
+        target_transform=SIXrayAnnotationTransform(),
+        # dataset_name='SIXray'):
+        dataset_name="SIXray",
+    ):
         # self.root = root
         self.root = SIXray_ROOT
         self.image_set = image_sets
         self.transform = transform
         self.target_transform = target_transform
         # self.name = dataset_name
-        self.name = 'Xray0723_bat_core_coreless'
+        self.name = "Xray0723_bat_core_coreless"
         # self._annopath = osp.join('%s' % self.root, 'Annotation', '%s.xml')
-        self._annopath = osp.join('%s' % self.root, 'Anno_core_coreless_battery_sub_2000_500', '%s.txt')
+        self._annopath = osp.join(
+            "%s" % self.root, "Anno_core_coreless_battery_sub_2000_500", "%s.txt"
+        )
         # self._imgpath = osp.join('%s' % self.root, 'Image', '%s.jpg')
-        self._imgpath = osp.join('%s' % self.root, 'cut_Image_core_coreless_battery_sub_2000_500', '%s.TIFF')
+        self._imgpath = osp.join(
+            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.TIFF"
+        )
         ###这尼玛还有小写的tiff？
-        self._imgpath1 = osp.join('%s' % self.root, 'cut_Image_core_coreless_battery_sub_2000_500', '%s.tiff')
-        self._imgpath_jpg = osp.join('%s' % self.root, 'cut_Image_core_coreless_battery_sub_2000_500', '%s.jpg')
+        self._imgpath1 = osp.join(
+            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.tiff"
+        )
+        self._imgpath_jpg = osp.join(
+            "%s" % self.root, "cut_Image_core_coreless_battery_sub_2000_500", "%s.jpg"
+        )
         self.ids = list()
 
         # listdir = os.listdir(osp.join('%s' % self.root, 'Annotation'))
 
-        with open(self.image_set, 'r') as f:
+        with open(self.image_set, "r") as f:
             lines = f.readlines()
             for line in lines:
-                self.ids.append(line.strip('\n'))
+                self.ids.append(line.strip("\n"))
 
-        '''
+        """
         for name in listdir:
             self.ids.append(osp.splitext(name)[0])
-        '''
+        """
 
     def __getitem__(self, index):
         im, gt, h, w, og_im = self.pull_item(index)
@@ -193,7 +204,7 @@ class SIXrayDetection(data.Dataset):
             img = cv2.imread(self._imgpath_jpg % img_id)
 
         if img is None:
-            print('\nwrong\n')
+            print("\nwrong\n")
             print(self._imgpath_jpg % img_id)
 
         # print()
