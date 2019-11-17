@@ -34,7 +34,7 @@ parser.add_argument(
     "--basenet", default="vgg16_reducedfc.pth", help="Pretrained base model"
 )
 parser.add_argument(
-    "--batch_size", default=32, type=int, help="Batch size for training"
+    "--batch_size", default=10, type=int, help="Batch size for training"
 )
 parser.add_argument(
     "--resume",
@@ -198,13 +198,14 @@ def train():
         loss.backward()
         optimizer.step()
         t1 = time.time()
-        loc_loss += loss_l.data[0]
-        conf_loss += loss_c.data[0]
+
+        loc_loss += loss_l.data
+        conf_loss += loss_c.data
 
         if iteration % 10 == 0:
             print("timer: %.4f sec." % (t1 - t0))
             print(
-                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data[0]),
+                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data),
                 end=" ",
             )
 
