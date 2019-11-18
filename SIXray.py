@@ -189,7 +189,7 @@ class SIXrayDetection(data.Dataset):
         img = cv2.imread(self._imgpath % img_id)
         if img is None:
             print("\nwrong\n")
-            print(self._imgpath % img_id)
+        print(self._imgpath % img_id)
 
         # print()
         height, width, channels = img.shape

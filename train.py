@@ -206,7 +206,7 @@ def train():
             print("timer: %.4f sec." % (t1 - t0))
             print(
                 "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data),
-                end=" ",
+                end=" "
             )
 
         if args.visdom:
