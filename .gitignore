@@ -3,4 +3,5 @@ __pycache__/
 core*/
 *.jpg
 *.txt
+*.pyc
 
