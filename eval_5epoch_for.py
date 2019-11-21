@@ -526,9 +526,9 @@ def evaluate_detections(box_list, output_dir, dataset):
 
 def reset_args(EPOCH):
     global args
-    args.trained_model = "/media/trs2/wuzhangjie/SSD/weights/Xray20190723/2019-10-18_16-23-15Xray0723_bat_core_coreless_bs8_V_resume140/ssd300_Xray20190723_{:d}.pth".format(
+    args.trained_model = "C:/Users/mi/work/weights/_{:d}.pth".format(
         EPOCH)
-    saver_root = '/media/trs2/wuzhangjie/SSD/eval/Xray20190723/Attention/base_battery_core_coreless_bs8_V/'
+    saver_root = 'C:/Users/mi/work/test_data/'
     if not os.path.exists(saver_root):
         os.mkdir(saver_root)
     args.save_folder = saver_root + '{:d}epoch_500/'.format(EPOCH)

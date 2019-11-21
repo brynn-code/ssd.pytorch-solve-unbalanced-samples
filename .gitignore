@@ -4,4 +4,4 @@ core*/
 *.jpg
 *.txt
 *.pyc
-
+*.pth
