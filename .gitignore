@@ -3,4 +3,7 @@ __pycache__/
 core*/
 *.jpg
 *.txt
+*.pyc
+*.DS_Store
+*.pth
 

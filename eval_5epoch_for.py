@@ -8,8 +8,10 @@ from __future__ import print_function
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
-from torch.autograd import Variablefrom SIXray import SIXray_ROOT, SIXrayAnnotationTransform, SIXrayDetection, BaseTransform
-from data import SIXray_CLASSES as labelmap
+from torch.autograd import Variable 
+from config import HOME
+from SIXray import SIXray_ROOT, SIXrayAnnotationTransform, SIXrayDetection, BaseTransform
+from SIXray import SIXray_CLASSES as labelmap
 import torch.utils.data as data
 
 from ssd import build_ssd
@@ -59,7 +61,7 @@ parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
 parser.add_argument('--imagesetfile',
                     # default='/media/dsg3/datasets/SIXray/dataset-test.txt', type=str,
-                    default="/media/trs2/Xray20190723/train_test_txt/battery_sub/sub_test_core_coreless.txt", type=str,
+                    default=HOME + "test_data/Image", type=str,
                     help='imageset file path to open')
 
 args = parser.parse_args()
@@ -526,9 +528,9 @@ def evaluate_detections(box_list, output_dir, dataset):
 
 def reset_args(EPOCH):
     global args
-    args.trained_model = "/media/trs2/wuzhangjie/SSD/weights/Xray20190723/2019-10-18_16-23-15Xray0723_bat_core_coreless_bs8_V_resume140/ssd300_Xray20190723_{:d}.pth".format(
+    args.trained_model = HOME + "weights/ssd300_XRAY_{:d}.pth".format(
         EPOCH)
-    saver_root = '/media/trs2/wuzhangjie/SSD/eval/Xray20190723/Attention/base_battery_core_coreless_bs8_V/'
+    saver_root = HOME + 'weights'
     if not os.path.exists(saver_root):
         os.mkdir(saver_root)
     args.save_folder = saver_root + '{:d}epoch_500/'.format(EPOCH)
@@ -547,7 +549,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(145, 205, 5)]
+    EPOCHS = [x for x in range(200, 201)]
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)
