@@ -6,4 +6,4 @@ core*/
 *.pyc
 *.DS_Store
 *.pth
-
+weight*

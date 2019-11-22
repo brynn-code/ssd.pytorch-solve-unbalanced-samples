@@ -14,9 +14,9 @@ file_list = []
 # for root, dirs, files in os.walk(current_path + "Image"):
 #     for file_name in files:
 #         file_list.append(file_name.split(".")[0]) 
-f = open(HOME + "train.id", "w+")
+f = open(HOME + "test.id", "w+")
 ids = []
-for root, dirs, files in os.walk(train_path + "Image"):
+for root, dirs, files in os.walk(test_path + "Image"):
     for file_name in files:
         id = file_name.split(".")[0]
         f.write(id)

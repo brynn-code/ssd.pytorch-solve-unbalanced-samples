@@ -61,7 +61,7 @@ parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
 parser.add_argument('--imagesetfile',
                     # default='/media/dsg3/datasets/SIXray/dataset-test.txt', type=str,
-                    default=HOME + "test_data/Image", type=str,
+                    default=HOME + "test.id", type=str,
                     help='imageset file path to open')
 
 args = parser.parse_args()
@@ -76,8 +76,8 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.SIXray_root, 'Anno_core_coreless_battery_sub_2000_500', '%s.xml')
-imgpath = os.path.join(args.SIXray_root, 'cut_Image_core_coreless_battery_sub_2000_500', '%s.jpg')
+annopath = os.path.join(args.SIXray_root, 'Annotation', '%s.xml')
+imgpath = os.path.join(args.SIXray_root, 'Image', '%s.jpg')
 
 # imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main', '{:s}.txt')
 
@@ -120,11 +120,9 @@ def parse_rec(filename,imgpath):
     # filename = filename[:-3] + 'txt'
 
     filename = filename.replace('.xml', '.txt')
-    
-	#imagename0 = filename.replace('Anno_core_coreless_battery_sub_2000_500', 'cut_Image_core_coreless_battery_sub_2000_500')
 	
     img_fold_name = imgpath.split('/')[-2]
-    imagename0 = filename.replace('Anno_core_coreless_battery_sub_2000_500', 'img_fold_name')
+    imagename0 = filename.replace('Annotation', 'Image')
     imagename1 = imagename0.replace('.txt', '.jpg')  # jpg form
     imagename2 = imagename0.replace('.txt', '.jpg')
     objects = []
@@ -437,8 +435,10 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
         # 这里im的颜色偏暗，因为BaseTransform减去了一个mean
         # im_saver = cv2.resize(im[(a2,a1,0),:,:].permute((a1,a2,0)).numpy(), (w,h))
 
-        im_det = dataset.pull_item(i)
+        im_det = dataset.pull_image(i)
 
+        # print(im_det)
+        # print("======\n")
         x = Variable(im.unsqueeze(0))
         if args.cuda:
             x = x.cuda()
