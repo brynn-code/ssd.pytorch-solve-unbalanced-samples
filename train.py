@@ -34,7 +34,7 @@ parser.add_argument(
     "--basenet", default="vgg16_reducedfc.pth", help="Pretrained base model"
 )
 parser.add_argument(
-    "--batch_size", default=10, type=int, help="Batch size for training"
+    "--batch_size", default=8, type=int, help="Batch size for training"
 )
 parser.add_argument(
     "--resume",
@@ -52,7 +52,7 @@ parser.add_argument(
     "--cuda", default=False, type=str2bool, help="Use CUDA to train model"
 )
 parser.add_argument(
-    "--lr", "--learning-rate", default=1e-3, type=float, help="initial learning rate"
+    "--lr", "--learning-rate", default=1e-5, type=float, help="initial learning rate"
 )
 parser.add_argument(
     "--momentum", default=0.9, type=float, help="Momentum value for optim"
@@ -87,7 +87,7 @@ if not os.path.exists(args.save_folder):
 
 
 def train():
-    args.dataset_root = SIXray_ROOT
+    args.dataset_root = SIXray_ROOT + "train_data/"
     cfg = coco
     dataset = SIXrayDetection(
         root=args.dataset_root,
@@ -180,6 +180,7 @@ def train():
             adjust_learning_rate(optimizer, args.gamma, step_index)
 
         # load train data
+        batch_iterator = iter(data_loader)
         images, targets = next(batch_iterator)
 
         if args.cuda:
@@ -205,8 +206,7 @@ def train():
         if iteration % 10 == 0:
             print("timer: %.4f sec." % (t1 - t0))
             print(
-                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data),
-                end=" "
+                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data)
             )
 
         if args.visdom:
@@ -219,10 +219,10 @@ def train():
                 "append",
             )
 
-        if iteration != 0 and iteration % 5000 == 0:
+        if iteration != 0 and iteration % 200 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
-                ssd_net.state_dict(), "weights/ssd300_COCO_" + repr(iteration) + ".pth"
+                ssd_net.state_dict(), "weights/ssd300_XRAY_" + repr(iteration) + ".pth"
             )
     torch.save(ssd_net.state_dict(), args.save_folder + "" + args.dataset + ".pth")
 

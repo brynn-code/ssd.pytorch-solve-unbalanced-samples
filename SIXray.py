@@ -5,24 +5,23 @@ https://github.com/fmassa/vision/blob/voc_dataset/torchvision/datasets/voc.py
 
 Updated by: Ellis Brown, Max deGroot
 """
-from config import HOME
-
-import os
 import os.path as osp
 import sys
 import torch
 import torch.utils.data as data
 import cv2
 import numpy as np
+import os
+import re
+from config import HOME
 
-if sys.version_info[0] == 2:
-    import xml.etree.cElementTree as ET
-else:
-    import xml.etree.ElementTree as ET
+# 两类需要识别
+SIXray_CLASSES = (
+    '带电芯充电宝', '不带电芯充电宝'
+)
 
-SIXray_CLASSES = ("带电芯充电宝", "不带电芯充电宝")
-# note: if you used our download scripts, this should be right
 SIXray_ROOT = HOME
+XRAY_ROOT = HOME +"train_data/"
 
 
 class SIXrayAnnotationTransform(object):
@@ -40,16 +39,14 @@ class SIXrayAnnotationTransform(object):
 
     def __init__(self, class_to_ind=None, keep_difficult=False):
         self.class_to_ind = class_to_ind or dict(
-            # zip(SIXray_CLASSES, range(len(SIXray_CLASSES))))
-            zip(SIXray_CLASSES, range(len(SIXray_CLASSES)))
-        )
+            zip(SIXray_CLASSES, range(len(SIXray_CLASSES))))
         self.keep_difficult = keep_difficult
         # 添加的记录所有小类总数
         self.type_dict = {}
         # 记录大类数量
         self.type_sum_dict = {}
 
-    def __call__(self, target, width, height, idx):
+    def __call__(self, target, width, height):
         """
         Arguments:
             target (annotation) : the target annotation to be made usable
@@ -58,64 +55,34 @@ class SIXrayAnnotationTransform(object):
         Returns:
             a list containing lists of bounding boxes  [bbox coords, class name]
         """
-        # print (idx)
 
-        ###读取所有类
-        # class_path = "C:/Users/石玉峰/PycharmProjects/untitled1/package2/class.xml"
-        """
-        class_path = SIXray_ROOT + "class.xml"
-        tree = ET.parse(class_path)
-        class_root = tree.getroot()
-        for child in class_root:
-            one_dict = {}
-            type_name = None
-            find_name = 0
-            for grandson in child:
-                if find_name == 0:
-                    find_name = 1
-                    type_name = grandson.text
-                else:
-                    one_dict[grandson.text] = 0
-            self.type_dict[type_name] = one_dict
-        #print(self.type_dict)
-        """
         # 遍历Annotation
-        # root_annotation = '/media/dsg3/datasets/Xray20190704/Annotation/'
         res = []
-        with open(target, "r", encoding="utf-8") as f1:
+        # 读取标注的txt文件
+        with open(target, "r", encoding='utf-8') as f1:
             dataread = f1.readlines()
         for annotation in dataread:
             bndbox = []
+            # 分解标注数据
             temp = annotation.split()
+            # 标注数据格式 :
+            #   01013328.TIFF 带电芯充电宝 631 700 737 879
+            # 标注名称: 带芯充电宝 / 不带芯充电宝
             name = temp[1]
             # 只读两类
-            if name != "带电芯充电宝" and name != "不带电芯充电宝":
+            if name != '带电芯充电宝' and name != '不带电芯充电宝':
                 continue
-            xmin = int(temp[2]) / width
-            # 只读取V视角的
-            if xmin > 1:
-                continue
-            if xmin < 0:
-                xmin = 0
-            ymin = int(temp[3]) / height
-            if ymin < 0:
-                ymin = 0
-            xmax = int(temp[4]) / width
-            if xmax > 1:  # 是这么个意思吧？
-                xmax = 1
-            ymax = int(temp[5]) / height
-            if ymax > 1:
-                ymax = 1
-            bndbox.append(xmin)
-            bndbox.append(ymin)
-            bndbox.append(xmax)
-            bndbox.append(ymax)
+
+            pts = ['xmin', 'ymin', 'xmax', 'ymax']
+            for i, pt in enumerate(pts):
+                cur_pt = int(temp[i + 2]) - 1
+                # scale height or width
+                cur_pt = cur_pt / width if i % 2 == 0 else cur_pt / height
+                bndbox.append(cur_pt)
+
             label_idx = self.class_to_ind[name]
-            # label_idx = name
             bndbox.append(label_idx)
-            res += [bndbox]  # [xmin, ymin, xmax, ymax, label_ind]
-        if len(res) == 0:
-            return [[0, 0, 0, 0, 3]]
+            res += [bndbox]
         return res
 
 
@@ -136,43 +103,23 @@ class SIXrayDetection(data.Dataset):
             (default: 'VOC2007')
     """
 
-    def __init__(
-        self,
-        root,
-        image_sets,
-        transform=None,
-        target_transform=SIXrayAnnotationTransform(),
-        # dataset_name='SIXray'):
-        dataset_name="SIXray",
-    ):
-        # self.root = root
-        self.root = SIXray_ROOT
+    def __init__(self, root,
+                 image_sets,
+                 transform=None, target_transform=SIXrayAnnotationTransform(),
+                 dataset_name='Xray0723_bat_core_coreless'):
+        self.root = root
         self.image_set = image_sets
         self.transform = transform
         self.target_transform = target_transform
-        # self.name = dataset_name
-        self.name = "Xray0723_bat_core_coreless"
-        # self._annopath = osp.join('%s' % self.root, 'Annotation', '%s.xml')
-        self._annopath = osp.join("%s" % self.root, "train_data/Annotation/", "%s.txt")
-        # self._imgpath = osp.join('%s' % self.root, 'Image', '%s.jpg')
-        self._imgpath = osp.join("%s" % self.root, "train_data/Image/", "%s.jpg")
-        self.ids = list()
+        self.name = dataset_name
+        self._annopath = osp.join('%s' % self.root, 'Annotation', '%s.txt')
+        self._imgpath = osp.join('%s' % self.root, 'Image', '%s.jpg')
+        self.ids = list_ids(XRAY_ROOT, "jpg")
 
-        # listdir = os.listdir(osp.join('%s' % self.root, 'Annotation'))
-
-        with open(self.image_set, "r") as f:
-            lines = f.readlines()
-            for line in lines:
-                self.ids.append(line.strip("\n"))
-
-        """
-        for name in listdir:
-            self.ids.append(osp.splitext(name)[0])
-        """
+        print(self.ids)
 
     def __getitem__(self, index):
-        im, gt, h, w, og_im = self.pull_item(index)
-
+        im, gt, h, w = self.pull_item(index)
         return im, gt
 
     def __len__(self):
@@ -180,57 +127,28 @@ class SIXrayDetection(data.Dataset):
 
     def pull_item(self, index):
         img_id = self.ids[index]
-
-        # target = ET.parse(self._annopath % img_id).getroot()
-
         target = self._annopath % img_id  # 注释目录
-        # print(target)
-        # print(self._imgpath % img_id)
         img = cv2.imread(self._imgpath % img_id)
-        if img is None:
-            print("\nwrong\n")
         print(self._imgpath % img_id)
+        if img is None:
+            print('\n错误:未找到图像文件\n')
+            sys.exit(1)
 
-        # print()
         height, width, channels = img.shape
-        # print("height: " + str(height) + " ; width : " + str(width) + " ; channels " + str(channels) )
-        og_img = img
 
-        # print (img_id)
         if self.target_transform is not None:
-            target = self.target_transform(target, width, height, img_id)
+            target = self.target_transform(target, width, height)
 
         if self.transform is not None:
             target = np.array(target)
-            # print(target)
             img, boxes, labels = self.transform(img, target[:, :4], target[:, 4])
             # to rgb
             img = img[:, :, (2, 1, 0)]
             # img = img.transpose(a2, 0, a1)
             target = np.hstack((boxes, np.expand_dims(labels, axis=1)))
-        return torch.from_numpy(img).permute(2, 0, 1), target, height, width, og_img
-        # return torch.from_numpy(img), target, height, width
+        return torch.from_numpy(img).permute(2, 0, 1), target, height, width
 
-    """
-    class_path = "C:/Users/石玉峰/PycharmProjects/untitled1/package2/class.xml"
-    tree = ET.parse(class_path)
-    class_root = tree.getroot()
-    type_dict = {}
-    for child in class_root:
-        one_dict = {}
-        type_name = None
-        find_name = 0
-        for grandson in child:
-            if find_name == 0:
-                find_name = 1
-                type_name = grandson.text
-            else:
-                one_dict[grandson.text] = 0
-        type_dict[type_name] = one_dict
-    print(type_dict)
-    """
-
-    """
+    # 根据ID 获取图片
     def pull_image(self, index):
         '''Returns the original image object at index in PIL form
 
@@ -245,6 +163,22 @@ class SIXrayDetection(data.Dataset):
         img_id = self.ids[index]
         return cv2.imread(self._imgpath % img_id, cv2.IMREAD_COLOR)
 
+    # 根据ID 获取标注
+    def pull_annotation(self, index):
+        img_id = self.ids[index]
+        annos = []
+        # 读取标注文件
+        with open(self._annopath % img_id, "r", encoding='utf-8') as file:
+            lines = file.readlines()
+            for line in lines:
+                temp = line.split()
+                fileName = temp[1]
+                if fileName != '带电芯充电宝' and fileName != '不带电芯充电宝':
+                    continue
+                img_tuple = (fileName, (int(temp[2]), int(temp[3])), (int(temp[4]), int(temp[5])))
+                annos.append(img_tuple)
+        return annos
+
     def pull_anno(self, index):
         '''Returns the original annotation of image at index
 
@@ -258,20 +192,44 @@ class SIXrayDetection(data.Dataset):
                 eg: ('001718', [('dog', (96, 13, 438, 332))])
         '''
         img_id = self.ids[index]
-        anno = ET.parse(self._annopath % img_id).getroot()
-        gt = self.target_transform(anno, a1, a1)
-        return img_id[a1], gt
+        anno = self._annopath % img_id
+        gt = self.target_transform(anno, 1, 1)
 
-    def pull_tensor(self, index):
-        '''Returns the original image at an index in tensor form
+        res = []
+        # gt = [[173.0, 100.0, 348.0, 350.0, 14] , [173.0, 100.0, 348.0, 350.0, 14]]
+        # 需要转换成 [('label_name', (96, 13, 438, 332))]
+        for tmp in gt:
+            label_idx = tmp[4]
+            label_name = SIXray_CLASSES[label_idx]
+            res.append([label_name, tmp[0:4]])
 
-        Note: not using self.__getitem__(), as any transformations passed in
-        could mess up this functionality.
+        return img_id, res
 
-        Argument:
-            index (int): index of img to show
-        Return:
-            tensorized version of img, squeezed
-        '''
-        return torch.Tensor(self.pull_image(index)).unsqueeze_(0)
-    """
+
+class BaseTransform:
+    def __init__(self, size, mean):
+        self.size = size
+        self.mean = np.array(mean, dtype=np.float32)
+
+    def __call__(self, image, boxes=None, labels=None):
+        return base_transform(image, self.size, self.mean), boxes, labels
+
+
+def base_transform(image, size, mean):
+    x = cv2.resize(image, (size, size)).astype(np.float32)
+    x -= mean
+    x = x.astype(np.float32)
+    return x
+
+
+def list_ids(root, allTypes):
+    res = []
+    re_img_id = re.compile(r'(\w+).(\w+)')
+    types = allTypes.split(",")
+    for root_temp, dirs, files in os.walk(root, topdown=True):
+        for name in files:
+            match = re_img_id.match(name)
+            if match:
+                if match.groups()[1] in types:
+                    res.append(match.groups()[0])
+    return res
