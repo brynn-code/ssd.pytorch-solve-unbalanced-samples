@@ -75,6 +75,8 @@ class COCOAnnotationTransform(object):
             # 标注名称: 带芯充电宝 / 不带芯充电宝
             name = temp[1]
             # 只读两类
+            print(name)
+            print("=============")
             if name != '带电芯充电宝' and name != '不带电芯充电宝':
                 continue
 
