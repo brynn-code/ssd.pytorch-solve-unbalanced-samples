@@ -21,7 +21,7 @@ SIXray_CLASSES = (
 )
 
 SIXray_ROOT = HOME
-XRAY_ROOT = HOME +"train_data/"
+XRAY_ROOT = HOME +"test_data/"
 
 
 class SIXrayAnnotationTransform(object):

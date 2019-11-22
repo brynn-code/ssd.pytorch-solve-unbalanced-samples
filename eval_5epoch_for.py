@@ -53,9 +53,9 @@ parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
-parser.add_argument('--cuda', default=True, type=str2bool,
+parser.add_argument('--cuda', default=False, type=str2bool,
                     help='Use cuda to train model')
-parser.add_argument('--SIXray_root', default=SIXray_ROOT,
+parser.add_argument('--SIXray_root', default=SIXray_ROOT+"test_data/",
                     help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
@@ -433,14 +433,12 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
     det_file = os.path.join(output_dir, 'detections.pkl')
 
     for i in range(num_images):
-        im, gt, h, w, og_im = dataset.pull_item(i)
+        im, gt, h, w  = dataset.pull_item(i)
         # 这里im的颜色偏暗，因为BaseTransform减去了一个mean
         # im_saver = cv2.resize(im[(a2,a1,0),:,:].permute((a1,a2,0)).numpy(), (w,h))
 
-        im_det = og_im.copy()
-        im_gt = og_im.copy()
+        im_det = dataset.pull_item(i)
 
-        # print(im_det)
         x = Variable(im.unsqueeze(0))
         if args.cuda:
             x = x.cuda()
@@ -549,7 +547,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(200, 201)]
+    EPOCHS = [x for x in range(100, 101)]
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)
