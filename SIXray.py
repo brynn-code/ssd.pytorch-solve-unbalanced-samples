@@ -21,7 +21,11 @@ SIXray_CLASSES = (
 )
 
 SIXray_ROOT = HOME
+<<<<<<< HEAD
 XRAY_ROOT = HOME +"train_data/"
+=======
+XRAY_ROOT = HOME +"test_data/"
+>>>>>>> brynn
 
 
 class SIXrayAnnotationTransform(object):

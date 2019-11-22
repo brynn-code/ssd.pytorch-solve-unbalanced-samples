@@ -6,3 +6,7 @@ core*/
 *.pyc
 *.DS_Store
 *.pth
+<<<<<<< HEAD
+=======
+weight*
+>>>>>>> brynn

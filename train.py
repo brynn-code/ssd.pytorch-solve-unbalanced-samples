@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(
 train_set = parser.add_mutually_exclusive_group()
 parser.add_argument("--dataset", default=HOME + "train.txt")
 parser.add_argument(
-    "--dataset_root", default=VOC_ROOT, help="Dataset root directory path"
+    "--dataset_root", default=HOME, help="Dataset root directory path"
 )
 parser.add_argument(
     "--basenet", default="vgg16_reducedfc.pth", help="Pretrained base model"
@@ -69,7 +69,7 @@ parser.add_argument(
     "--visdom", default=False, type=str2bool, help="Use visdom for loss visualization"
 )
 parser.add_argument(
-    "--save_folder", default="weights/", help="Directory for saving checkpoint models"
+    "--save_folder", default=HOME + "weights/", help="Directory for saving checkpoint models"
 )
 args = parser.parse_args()
 
@@ -111,13 +111,13 @@ def train():
         net = torch.nn.DataParallel(ssd_net)
         cudnn.benchmark = True
 
-    # if args.resume:
-    #     print("Resuming training, loading {}...".format(args.resume))
-    #     ssd_net.load_weights(args.resume)
-    # else:
-    #     vgg_weights = torch.load(args.save_folder + args.basenet)
-    #     print("Loading base network...")
-    #     ssd_net.vgg.load_state_dict(vgg_weights)
+    if args.resume:
+        print("Resuming training, loading {}...".format(args.resume))
+        ssd_net.load_weights(args.resume)
+    else:
+        vgg_weights = torch.load(args.save_folder + args.basenet)
+        print("Loading base network...")
+        ssd_net.vgg.load_state_dict(vgg_weights)
 
     if args.cuda:
         net = net.cuda()
@@ -211,7 +211,11 @@ def train():
             print("timer: %.4f sec." % (t1 - t0))
             print(
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data), end=" "
+=======
+                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data)
+>>>>>>> brynn
 =======
                 "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data)
 >>>>>>> brynn
@@ -227,10 +231,17 @@ def train():
                 "append",
             )
 
+<<<<<<< HEAD
         if iteration != 0 and iteration % 200 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "weights/ssd300_XRAY_" + repr(iteration) + ".pth"
+=======
+        if iteration != 0 and iteration % 100 == 0:
+            print("Saving state, iter:", iteration)
+            torch.save(
+                ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"
+>>>>>>> brynn
             )
     torch.save(ssd_net.state_dict(), args.save_folder + "" + args.dataset + ".pth")
 

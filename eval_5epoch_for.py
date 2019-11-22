@@ -53,15 +53,15 @@ parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
-parser.add_argument('--cuda', default=True, type=str2bool,
+parser.add_argument('--cuda', default=False, type=str2bool,
                     help='Use cuda to train model')
-parser.add_argument('--SIXray_root', default=SIXray_ROOT,
+parser.add_argument('--SIXray_root', default=SIXray_ROOT+"test_data/",
                     help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
 parser.add_argument('--imagesetfile',
                     # default='/media/dsg3/datasets/SIXray/dataset-test.txt', type=str,
-                    default="/media/trs2/Xray20190723/train_test_txt/battery_sub/sub_test_core_coreless.txt", type=str,
+                    default=HOME + "test.id", type=str,
                     help='imageset file path to open')
 
 args = parser.parse_args()
@@ -76,8 +76,8 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.SIXray_root, 'Anno_core_coreless_battery_sub_2000_500', '%s.xml')
-imgpath = os.path.join(args.SIXray_root, 'cut_Image_core_coreless_battery_sub_2000_500', '%s.jpg')
+annopath = os.path.join(args.SIXray_root, 'Annotation', '%s.xml')
+imgpath = os.path.join(args.SIXray_root, 'Image', '%s.jpg')
 
 # imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main', '{:s}.txt')
 
@@ -120,11 +120,9 @@ def parse_rec(filename,imgpath):
     # filename = filename[:-3] + 'txt'
 
     filename = filename.replace('.xml', '.txt')
-    
-	#imagename0 = filename.replace('Anno_core_coreless_battery_sub_2000_500', 'cut_Image_core_coreless_battery_sub_2000_500')
 	
     img_fold_name = imgpath.split('/')[-2]
-    imagename0 = filename.replace('Anno_core_coreless_battery_sub_2000_500', 'img_fold_name')
+    imagename0 = filename.replace('Annotation', 'Image')
     imagename1 = imagename0.replace('.txt', '.jpg')  # jpg form
     imagename2 = imagename0.replace('.txt', '.jpg')
     objects = []
@@ -433,14 +431,14 @@ def test_net(save_folder, net, cuda, dataset, transform, top_k,
     det_file = os.path.join(output_dir, 'detections.pkl')
 
     for i in range(num_images):
-        im, gt, h, w, og_im = dataset.pull_item(i)
+        im, gt, h, w  = dataset.pull_item(i)
         # 这里im的颜色偏暗，因为BaseTransform减去了一个mean
         # im_saver = cv2.resize(im[(a2,a1,0),:,:].permute((a1,a2,0)).numpy(), (w,h))
 
-        im_det = og_im.copy()
-        im_gt = og_im.copy()
+        im_det = dataset.pull_image(i)
 
         # print(im_det)
+        # print("======\n")
         x = Variable(im.unsqueeze(0))
         if args.cuda:
             x = x.cuda()
@@ -529,9 +527,15 @@ def evaluate_detections(box_list, output_dir, dataset):
 def reset_args(EPOCH):
     global args
 <<<<<<< HEAD
+<<<<<<< HEAD
     args.trained_model = "C:/Users/mi/work/weights/_{:d}.pth".format(
         EPOCH)
     saver_root = 'C:/Users/mi/work/test_data/'
+=======
+    args.trained_model = HOME + "weights/ssd300_XRAY_{:d}.pth".format(
+        EPOCH)
+    saver_root = HOME + 'weights'
+>>>>>>> brynn
 =======
     args.trained_model = HOME + "weights/ssd300_XRAY_{:d}.pth".format(
         EPOCH)
@@ -555,7 +559,11 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
+<<<<<<< HEAD
     EPOCHS = [x for x in range(200, 201)]
+=======
+    EPOCHS = [x for x in range(100, 101)]
+>>>>>>> brynn
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)
