@@ -33,13 +33,9 @@ parser.add_argument(
 parser.add_argument(
     "--basenet", default="vgg16_reducedfc.pth", help="Pretrained base model"
 )
-<<<<<<< HEAD
-parser.add_argument("--batch_size", default=8, type=int, help="Batch size for training")
-=======
 parser.add_argument(
     "--batch_size", default=8, type=int, help="Batch size for training"
 )
->>>>>>> brynn
 parser.add_argument(
     "--resume",
     default=None,
@@ -210,15 +206,7 @@ def train():
         if iteration % 10 == 0:
             print("timer: %.4f sec." % (t1 - t0))
             print(
-<<<<<<< HEAD
-<<<<<<< HEAD
                 "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data), end=" "
-=======
-                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data)
->>>>>>> brynn
-=======
-                "iter " + repr(iteration) + " || Loss: %.4f ||" % (loss.data)
->>>>>>> brynn
             )
 
         if args.visdom:
@@ -231,17 +219,10 @@ def train():
                 "append",
             )
 
-<<<<<<< HEAD
-        if iteration != 0 and iteration % 200 == 0:
-            print("Saving state, iter:", iteration)
-            torch.save(
-                ssd_net.state_dict(), "weights/ssd300_XRAY_" + repr(iteration) + ".pth"
-=======
         if iteration != 0 and iteration % 100 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"
->>>>>>> brynn
             )
     torch.save(ssd_net.state_dict(), args.save_folder + "" + args.dataset + ".pth")
 

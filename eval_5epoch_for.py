@@ -526,21 +526,9 @@ def evaluate_detections(box_list, output_dir, dataset):
 
 def reset_args(EPOCH):
     global args
-<<<<<<< HEAD
-<<<<<<< HEAD
-    args.trained_model = "C:/Users/mi/work/weights/_{:d}.pth".format(
-        EPOCH)
-    saver_root = 'C:/Users/mi/work/test_data/'
-=======
     args.trained_model = HOME + "weights/ssd300_XRAY_{:d}.pth".format(
         EPOCH)
     saver_root = HOME + 'weights'
->>>>>>> brynn
-=======
-    args.trained_model = HOME + "weights/ssd300_XRAY_{:d}.pth".format(
-        EPOCH)
-    saver_root = HOME + 'weights'
->>>>>>> brynn
     if not os.path.exists(saver_root):
         os.mkdir(saver_root)
     args.save_folder = saver_root + '{:d}epoch_500/'.format(EPOCH)
@@ -559,11 +547,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-<<<<<<< HEAD
-    EPOCHS = [x for x in range(200, 201)]
-=======
     EPOCHS = [x for x in range(100, 101)]
->>>>>>> brynn
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)
