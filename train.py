@@ -52,7 +52,7 @@ parser.add_argument(
     "--cuda", default=False, type=str2bool, help="Use CUDA to train model"
 )
 parser.add_argument(
-    "--lr", "--learning-rate", default=1e-5, type=float, help="initial learning rate"
+    "--lr", "--learning-rate", default=1e-4, type=float, help="initial learning rate"
 )
 parser.add_argument(
     "--momentum", default=0.9, type=float, help="Momentum value for optim"
@@ -224,7 +224,7 @@ def train():
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"
             )
-    torch.save(ssd_net.state_dict(), args.save_folder + "" + args.dataset + ".pth")
+    torch.save(ssd_net.state_dict(), args.save_folder + "/weights/" + args.dataset + ".pth")
 
 
 def adjust_learning_rate(optimizer, gamma, step):

@@ -128,6 +128,7 @@ def parse_rec(filename,imgpath):
     objects = []
     # 还需要同时打开图像，读入图像大小
     img = cv2.imread(imagename1)
+    print(imagename1)
     if img is None:
         img = cv2.imread(imagename2)
     height, width, channels = img.shape
@@ -547,7 +548,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(100, 101)]
+    EPOCHS = [x for x in range(100, 300, 100)]
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)

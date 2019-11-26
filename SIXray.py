@@ -16,12 +16,10 @@ import re
 from config import HOME
 
 # 两类需要识别
-SIXray_CLASSES = (
-    '带电芯充电宝', '不带电芯充电宝'
-)
+SIXray_CLASSES = ("带电芯充电宝", "不带电芯充电宝")
 
 SIXray_ROOT = HOME
-XRAY_ROOT = HOME +"train_data/"
+XRAY_ROOT = HOME + "test_data/"
 
 
 class SIXrayAnnotationTransform(object):
@@ -39,7 +37,8 @@ class SIXrayAnnotationTransform(object):
 
     def __init__(self, class_to_ind=None, keep_difficult=False):
         self.class_to_ind = class_to_ind or dict(
-            zip(SIXray_CLASSES, range(len(SIXray_CLASSES))))
+            zip(SIXray_CLASSES, range(len(SIXray_CLASSES)))
+        )
         self.keep_difficult = keep_difficult
         # 添加的记录所有小类总数
         self.type_dict = {}
@@ -59,7 +58,7 @@ class SIXrayAnnotationTransform(object):
         # 遍历Annotation
         res = []
         # 读取标注的txt文件
-        with open(target, "r", encoding='utf-8') as f1:
+        with open(target, "r", encoding="utf-8") as f1:
             dataread = f1.readlines()
         for annotation in dataread:
             bndbox = []
@@ -70,10 +69,10 @@ class SIXrayAnnotationTransform(object):
             # 标注名称: 带芯充电宝 / 不带芯充电宝
             name = temp[1]
             # 只读两类
-            if name != '带电芯充电宝' and name != '不带电芯充电宝':
+            if name != "带电芯充电宝" and name != "不带电芯充电宝":
                 continue
 
-            pts = ['xmin', 'ymin', 'xmax', 'ymax']
+            pts = ["xmin", "ymin", "xmax", "ymax"]
             for i, pt in enumerate(pts):
                 cur_pt = int(temp[i + 2]) - 1
                 # scale height or width
@@ -103,18 +102,22 @@ class SIXrayDetection(data.Dataset):
             (default: 'VOC2007')
     """
 
-    def __init__(self, root,
-                 image_sets,
-                 transform=None, target_transform=SIXrayAnnotationTransform(),
-                 dataset_name='Xray0723_bat_core_coreless'):
+    def __init__(
+        self,
+        root,
+        image_sets,
+        transform=None,
+        target_transform=SIXrayAnnotationTransform(),
+        dataset_name="Xray0723_bat_core_coreless",
+    ):
         self.root = root
         self.image_set = image_sets
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = osp.join('%s' % self.root, 'Annotation', '%s.txt')
-        self._imgpath = osp.join('%s' % self.root, 'Image', '%s.jpg')
-        self.ids = list_ids(XRAY_ROOT, "jpg")
+        self._annopath = osp.join("%s" % self.root, "Annotation", "%s.txt")
+        self._imgpath = osp.join("%s" % self.root, "Image", "%s.jpg")
+        self.ids = list_ids(root, "jpg")
 
         print(self.ids)
 
@@ -131,7 +134,7 @@ class SIXrayDetection(data.Dataset):
         img = cv2.imread(self._imgpath % img_id)
         print(self._imgpath % img_id)
         if img is None:
-            print('\n错误:未找到图像文件\n')
+            print("\n错误:未找到图像文件\n")
             sys.exit(1)
 
         height, width, channels = img.shape
@@ -150,7 +153,7 @@ class SIXrayDetection(data.Dataset):
 
     # 根据ID 获取图片
     def pull_image(self, index):
-        '''Returns the original image object at index in PIL form
+        """Returns the original image object at index in PIL form
 
         Note: not using self.__getitem__(), as any transformations passed in
         could mess up this functionality.
@@ -159,7 +162,7 @@ class SIXrayDetection(data.Dataset):
             index (int): index of img to show
         Return:
             PIL img
-        '''
+        """
         img_id = self.ids[index]
         return cv2.imread(self._imgpath % img_id, cv2.IMREAD_COLOR)
 
@@ -168,19 +171,23 @@ class SIXrayDetection(data.Dataset):
         img_id = self.ids[index]
         annos = []
         # 读取标注文件
-        with open(self._annopath % img_id, "r", encoding='utf-8') as file:
+        with open(self._annopath % img_id, "r", encoding="utf-8") as file:
             lines = file.readlines()
             for line in lines:
                 temp = line.split()
                 fileName = temp[1]
-                if fileName != '带电芯充电宝' and fileName != '不带电芯充电宝':
+                if fileName != "带电芯充电宝" and fileName != "不带电芯充电宝":
                     continue
-                img_tuple = (fileName, (int(temp[2]), int(temp[3])), (int(temp[4]), int(temp[5])))
+                img_tuple = (
+                    fileName,
+                    (int(temp[2]), int(temp[3])),
+                    (int(temp[4]), int(temp[5])),
+                )
                 annos.append(img_tuple)
         return annos
 
     def pull_anno(self, index):
-        '''Returns the original annotation of image at index
+        """Returns the original annotation of image at index
 
         Note: not using self.__getitem__(), as any transformations passed in
         could mess up this functionality.
@@ -190,7 +197,7 @@ class SIXrayDetection(data.Dataset):
         Return:
             list:  [img_id, [(label, bbox coords),...]]
                 eg: ('001718', [('dog', (96, 13, 438, 332))])
-        '''
+        """
         img_id = self.ids[index]
         anno = self._annopath % img_id
         gt = self.target_transform(anno, 1, 1)
@@ -224,7 +231,7 @@ def base_transform(image, size, mean):
 
 def list_ids(root, allTypes):
     res = []
-    re_img_id = re.compile(r'(\w+).(\w+)')
+    re_img_id = re.compile(r"(\w+).(\w+)")
     types = allTypes.split(",")
     for root_temp, dirs, files in os.walk(root, topdown=True):
         for name in files:
