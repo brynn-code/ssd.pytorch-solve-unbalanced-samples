@@ -49,7 +49,7 @@ parser.add_argument(
     "--num_workers", default=4, type=int, help="Number of workers used in dataloading"
 )
 parser.add_argument(
-    "--cuda", default=False, type=str2bool, help="Use CUDA to train model"
+    "--cuda", default=True, type=str2bool, help="Use CUDA to train model"
 )
 parser.add_argument(
     "--lr", "--learning-rate", default=1e-4, type=float, help="initial learning rate"
@@ -219,7 +219,7 @@ def train():
                 "append",
             )
 
-        if iteration != 0 and iteration % 100 == 0:
+        if iteration != 0 and iteration % 200 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"

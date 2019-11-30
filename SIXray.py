@@ -132,9 +132,9 @@ class SIXrayDetection(data.Dataset):
         img_id = self.ids[index]
         target = self._annopath % img_id  # 注释目录
         img = cv2.imread(self._imgpath % img_id)
-        print(self._imgpath % img_id)
         if img is None:
             print("\n错误:未找到图像文件\n")
+            print(self._imgpath % img_id)
             sys.exit(1)
 
         height, width, channels = img.shape

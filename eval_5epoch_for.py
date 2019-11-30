@@ -128,9 +128,11 @@ def parse_rec(filename,imgpath):
     objects = []
     # 还需要同时打开图像，读入图像大小
     img = cv2.imread(imagename1)
-    print(imagename1)
     if img is None:
         img = cv2.imread(imagename2)
+    if img is None:
+        print(imagename0)
+        
     height, width, channels = img.shape
     with open(filename, "r", encoding='utf-8') as f1:
         dataread = f1.readlines()
@@ -155,7 +157,7 @@ def parse_rec(filename,imgpath):
             ymax = int(temp[5])
             if ymax > height:
                 ymax = height - 1
-            ##name
+            ##name 
             obj_struct['name'] = name
             obj_struct['pose'] = 'Unspecified'
             obj_struct['truncated'] = 0
@@ -548,7 +550,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(100, 300, 100)]
+    EPOCHS = [x for x in range(200, 800, 200)]
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)
@@ -556,7 +558,7 @@ if __name__ == '__main__':
         # load net
         num_classes = len(labelmap) + 1  # +a1 for background
         net = build_ssd('test', 300, num_classes)  # initialize SSD
-        net.load_state_dict(torch.load(args.trained_model))
+        net.load_state_dict(torch.load(args.trained_model, map_location=torch.device('cpu')))
         net.eval()
         # print('Finished loading model!')
         # load data
