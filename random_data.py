@@ -11,14 +11,64 @@ test_path = "./test_data/"
 file_list = []
 
 print(test_path)
-f = open(HOME + "test.id", "w+")
+
 ids = []
-for root, dirs, files in os.walk(test_path + "Image"):
+num_1 = 0
+num_2 = 0
+
+for root, dirs, files in os.walk(train_path + "Annotation"):
     for file_name in files:
-        id = file_name.split(".")[0]
-        f.write(id)
-        f.write("\n")
-f.close
+        file_id = file_name.split(".")[0]
+        if file_id == "":
+            continue
+        with open(train_path + "Annotation/" + file_name, encoding="utf-8", mode="r") as f:
+            useful = False
+            for line in f.readlines():
+                if line.find(u" 带电芯") != -1:
+                    num_1 = num_1 + 1
+                    useful = True
+                if line.find(u" 不带电芯") != -1:
+                    num_2 = num_2 + 1
+                    useful = True
+            if useful == False:
+                ids.append(file_id)
+print(num_1)# 866
+print("=============\n")
+print(num_2) # 4297  ~ 1:5
+
+# for id in ids:
+#     os.remove(train_path + "Annotation/" + id +".txt")
+#     os.remove(train_path + "Image/" + id +".jpg")
+        
+                
+
+# for root, dirs, files in os.walk(train_path + "Annotation"):
+#     for file_name in files:
+#         num = 0
+#         file_id = file_name.split(".")[0]
+#         if file_id == "":
+#             continue
+#         line1 = ""
+#         with open(train_path + "Annotation/" + file_name, encoding="utf-8", mode="r") as f:
+#             for line in f.readlines():
+#                 if num == 0:
+#                     line1 = line
+#                 num = num + 1
+#                 if num > 1:
+#                     vec_id = file_id + ("_vec%d" %num)
+#                     with open(train_path + "Annotation/" + vec_id + ".txt", encoding="utf-8", mode="w") as f2:
+#                         f2.write(line)
+#                         f2.close
+#                         shutil.copy(
+#                             train_path + "Image/" + file_id + ".jpg",
+#                             train_path + "Image/" + vec_id + ".jpg",
+#                         )
+#         if num > 1:
+#             with  open(train_path + "Annotation/" + file_name, encoding="utf-8", mode="w+") as f:
+#                 f.write(line1)        
+#                 f.close
+#             print(file_name)
+#             print("\n")
 
 # random.shuffle(file_list)
 

@@ -550,7 +550,7 @@ if __name__ == '__main__':
     # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
     # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
     # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(200, 800, 200)]
+    EPOCHS = [x for x in range(8500, 8800, 500)]
     print(EPOCHS)
     for EPOCH in EPOCHS:
         reset_args(EPOCH)

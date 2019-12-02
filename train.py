@@ -38,12 +38,12 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default=None,
+    default=HOME + "/weights/ssd300_XRAY_8500.pth",
     type=str,
     help="Checkpoint state_dict file to resume training from",
 )
 parser.add_argument(
-    "--start_iter", default=0, type=int, help="Resume training at this iter"
+    "--start_iter", default=8500, type=int, help="Resume training at this iter"
 )
 parser.add_argument(
     "--num_workers", default=4, type=int, help="Number of workers used in dataloading"
@@ -219,7 +219,7 @@ def train():
                 "append",
             )
 
-        if iteration != 0 and iteration % 200 == 0:
+        if iteration != 0 and iteration % 500 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"
