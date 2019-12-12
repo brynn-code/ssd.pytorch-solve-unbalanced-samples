@@ -38,7 +38,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--resume",
-    default=HOME + "/weights/ssd300_XRAY_8500.pth",
+    default=HOME + "/work/weights/ssd300_XRAY_8500.pth",
     type=str,
     help="Checkpoint state_dict file to resume training from",
 )
@@ -67,6 +67,10 @@ parser.add_argument(
 parser.add_argument(
     "--save_folder", default=HOME + "weights/", help="Directory for saving checkpoint models"
 )
+parser.add_argument('--image_full_path',default=HOME + '/work/test_data/Image',
+                    type=str, help='imageset file path (full path) to open')
+parser.add_argument('--annotation_full_path', default=HOME + '/work/test_data/Annotation',
+                    type=str, help='annotation file path (full path) to open')
 args = parser.parse_args()
 
 
@@ -90,8 +94,8 @@ def train():
     args.dataset_root = SIXray_ROOT + "train_data/"
     cfg = coco
     dataset = SIXrayDetection(
-        root=args.dataset_root,
-        image_sets=HOME + "train.id",
+        image_sets= args.image_full_path,
+        annotation_sets_path = args.annotation_full_path,
         transform=SSDAugmentation(cfg["min_dim"], MEANS),
     )
 
