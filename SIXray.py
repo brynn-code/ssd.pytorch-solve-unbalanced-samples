@@ -18,8 +18,7 @@ from config import HOME
 # 两类需要识别
 SIXray_CLASSES = ("带电芯充电宝", "不带电芯充电宝")
 
-SIXray_ROOT = HOME
-XRAY_ROOT = HOME + "test_data/"
+SIXray_ROOT = HOME +"work"
 
 
 class SIXrayAnnotationTransform(object):
@@ -104,22 +103,21 @@ class SIXrayDetection(data.Dataset):
 
     def __init__(
         self,
-        root,
-        image_sets,
+        image_sets_path,
+        annotation_sets_path,
         transform=None,
         target_transform=SIXrayAnnotationTransform(),
-        dataset_name="Xray0723_bat_core_coreless",
+        dataset_name="SIXray_core_coreless",
     ):
-        self.root = root
-        self.image_set = image_sets
+        self.image_sets_path = image_sets_path
+        self.annotation_sets_path = annotation_sets_path
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = osp.join("%s" % self.root, "Annotation", "%s.txt")
-        self._imgpath = osp.join("%s" % self.root, "Image", "%s.jpg")
-        self.ids = list_ids(root, "jpg")
-
-        print(self.ids)
+        self._annopath = osp.join("%s" % self.annotation_sets_path, "%s.txt")
+        self._imgpath = osp.join("%s" % self.image_sets_path, "%s.jpg")
+        print(image_sets_path)
+        self.ids = list_ids(image_sets_path, "jpg")
 
     def __getitem__(self, index):
         im, gt, h, w = self.pull_item(index)

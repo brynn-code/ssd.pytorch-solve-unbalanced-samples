@@ -9,7 +9,6 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable 
-from config import HOME
 from SIXray import SIXray_ROOT, SIXrayAnnotationTransform, SIXrayDetection, BaseTransform
 from SIXray import SIXray_CLASSES as labelmap
 import torch.utils.data as data
@@ -25,6 +24,8 @@ import numpy as np
 import pickle
 import cv2
 import shutil
+from config import HOME
+import re
 
 if sys.version_info[0] == 2:
     import xml.etree.cElementTree as ET
@@ -43,9 +44,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Evaluation')
 parser.add_argument('--trained_model',
-                    default="weights/ssd300_mAP_77.43_v2.pth", type=str,
+                    default=HOME + "/work/weights/ssd300_XRAY_10000.pth", type=str,
                     help='Trained state_dict file path to open')
-parser.add_argument(  # '--save_folder', default='/media/dsg3/husheng/eval/', type=str,
+parser.add_argument(
     '--save_folder',
     default="eval_res/", type=str,
     help='File path to save results')
@@ -53,18 +54,20 @@ parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
-parser.add_argument('--cuda', default=False, type=str2bool,
+parser.add_argument('--cuda', default=True, type=str2bool,
                     help='Use cuda to train model')
-parser.add_argument('--SIXray_root', default=SIXray_ROOT+"test_data/",
-                    help='Location of VOC root directory')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
-parser.add_argument('--imagesetfile',
-                    # default='/media/dsg3/datasets/SIXray/dataset-test.txt', type=str,
-                    default=HOME + "test.id", type=str,
-                    help='imageset file path to open')
+
+parser.add_argument('--image_full_path',default=HOME + '/work/test_data/Image',
+                    type=str, help='imageset file path (full path) to open')
+parser.add_argument('--annotation_full_path', default=HOME + '/work/test_data/Annotation',
+                    type=str, help='annotation file path (full path) to open')
 
 args = parser.parse_args()
+
+imgpath = args.image_full_path
+annopath = args.annotation_full_path
 
 if torch.cuda.is_available():
     if args.cuda:
@@ -76,12 +79,7 @@ if torch.cuda.is_available():
 else:
     torch.set_default_tensor_type('torch.FloatTensor')
 
-annopath = os.path.join(args.SIXray_root, 'Annotation', '%s.xml')
-imgpath = os.path.join(args.SIXray_root, 'Image', '%s.jpg')
-
 # imgsetpath = os.path.join(args.voc_root, 'VOC2007', 'ImageSets', 'Main', '{:s}.txt')
-
-YEAR = '2007'
 
 devkit_path = args.save_folder
 dataset_mean = (104, 117, 123)
@@ -221,7 +219,7 @@ def do_python_eval(output_dir='output', use_07=False):
     for i, cls in enumerate(labelmap):
         filename = get_voc_results_file_template(set_type, cls)
         rec, prec, ap = voc_eval(
-            filename, annopath,imgpath, args.imagesetfile, cls, cachedir,
+            filename, annopath,imgpath, "", cls, cachedir,
             ovthresh=0.5, use_07_metric=use_07_metric)
         aps += [ap]
         # print('AP for {} = {:.4f}'.format(cls, ap))
@@ -312,8 +310,17 @@ cachedir: Directory for caching the annotations
         os.mkdir(cachedir)
     cachefile = os.path.join(cachedir, 'annots.pkl')
     # read list of images
-    with open(imagesetfile, 'r') as f:
-        lines = f.readlines()
+    lines = []
+    re_img_id = re.compile(r"(\w+).(\w+)")
+    types = [".jpg"]
+    for root_temp, dirs, files in os.walk(imgpath, topdown=True):
+        for name in files:
+            match = re_img_id.match(name)
+            if match:
+                if match.groups()[1] in types:
+                    lines.append(match.groups()[0])
+    print(imgpath)
+    print(lines)
     imagenames = [x.strip() for x in lines]
     if not os.path.isfile(cachefile):
         # print('not os.path.isfile')
@@ -547,29 +554,22 @@ def reset_args(EPOCH):
 
 
 if __name__ == '__main__':
-    # EPOCHS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
-    # EPOCHS = [85, 90, 95, 100, 105, 110, 115, 120]
-    # EPOCHS = [90, 95, 100, 105, 110, 115, 120, 125]
-    EPOCHS = [x for x in range(10000, 10001, 500)]
-    print(EPOCHS)
-    for EPOCH in EPOCHS:
-        reset_args(EPOCH)
 
-        # load net
-        num_classes = len(labelmap) + 1  # +a1 for background
-        net = build_ssd('test', 300, num_classes)  # initialize SSD
-        net.load_state_dict(torch.load(args.trained_model, map_location=torch.device('cpu')))
-        net.eval()
-        # print('Finished loading model!')
-        # load data
-        dataset = SIXrayDetection(args.SIXray_root, args.imagesetfile,
-                                  BaseTransform(300, dataset_mean),
-                                  SIXrayAnnotationTransform())
-        if args.cuda:
-            net = net.cuda()
-            cudnn.benchmark = True
-        # evaluation
+    # load net
+    num_classes = len(labelmap) + 1  # +a1 for background
+    net = build_ssd('test', 300, num_classes)  # initialize SSD
+    net.load_state_dict(torch.load(args.trained_model))
+    net.eval()
+    # print('Finished loading model!')
+    # load data
+    dataset = SIXrayDetection(args.image_full_path, args.annotation_full_path,
+                                BaseTransform(300, dataset_mean),
+                                SIXrayAnnotationTransform())
+    if args.cuda:
+        net = net.cuda()
+        cudnn.benchmark = True
+    # evaluation
 
-        test_net(args.save_folder, net, args.cuda, dataset,
-                 BaseTransform(net.size, dataset_mean), args.top_k, 300,
-                 thresh=args.confidence_threshold)
+    test_net(args.save_folder, net, args.cuda, dataset,
+                BaseTransform(net.size, dataset_mean), args.top_k, 300,
+                thresh=args.confidence_threshold)
