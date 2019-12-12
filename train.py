@@ -65,7 +65,7 @@ parser.add_argument(
     "--visdom", default=False, type=str2bool, help="Use visdom for loss visualization"
 )
 parser.add_argument(
-    "--save_folder", default=HOME + "weights/", help="Directory for saving checkpoint models"
+    "--save_folder", default=HOME + "/weights/", help="Directory for saving checkpoint models"
 )
 parser.add_argument('--image_full_path',default=HOME + '/work/test_data/Image',
                     type=str, help='imageset file path (full path) to open')

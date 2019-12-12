@@ -312,15 +312,13 @@ cachedir: Directory for caching the annotations
     # read list of images
     lines = []
     re_img_id = re.compile(r"(\w+).(\w+)")
-    types = [".jpg"]
+    types = ["jpg"]
     for root_temp, dirs, files in os.walk(imgpath, topdown=True):
         for name in files:
             match = re_img_id.match(name)
             if match:
                 if match.groups()[1] in types:
                     lines.append(match.groups()[0])
-    print(imgpath)
-    print(lines)
     imagenames = [x.strip() for x in lines]
     if not os.path.isfile(cachefile):
         # print('not os.path.isfile')
@@ -355,7 +353,7 @@ cachedir: Directory for caching the annotations
                                  'difficult': difficult,
                                  'det': det}
 
-    # print (class_recs)
+    print (class_recs)
 
     # read dets
     detfile = detpath.format(classname)
