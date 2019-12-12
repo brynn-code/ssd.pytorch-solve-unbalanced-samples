@@ -219,7 +219,7 @@ def train():
                 "append",
             )
 
-        if iteration != 0 and iteration % 500 == 0:
+        if iteration != 0 and iteration % 2000 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"
