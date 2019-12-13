@@ -54,7 +54,7 @@ parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
-parser.add_argument('--cuda', default=True, type=str2bool,
+parser.add_argument('--cuda', default=False, type=str2bool,
                     help='Use cuda to train model')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
@@ -112,24 +112,19 @@ class Timer(object):
             return self.diff
 
 
-def parse_rec(filename,imgpath):
+def parse_rec(filename,imgpath, imgname):
     """ Parse a PASCAL VOC xml file """
     # tree = ET.parse(filename)
     # filename = filename[:-3] + 'txt'
-
+    filename = filename+"/" + imgname +".txt"
     filename = filename.replace('.xml', '.txt')
-	
     img_fold_name = imgpath.split('/')[-2]
-    imagename0 = filename.replace('Annotation', 'Image')
-    imagename1 = imagename0.replace('.txt', '.jpg')  # jpg form
-    imagename2 = imagename0.replace('.txt', '.jpg')
+    imagename0 = imgpath+ "/" + imgname +".jpg"
     objects = []
     # 还需要同时打开图像，读入图像大小
-    img = cv2.imread(imagename1)
+    img = cv2.imread(imagename0)
     if img is None:
-        img = cv2.imread(imagename2)
-    if img is None:
-        print(imagename0)
+        print(imagename0 +" not found ")
         
     height, width, channels = img.shape
     with open(filename, "r", encoding='utf-8') as f1:
@@ -325,7 +320,7 @@ cachedir: Directory for caching the annotations
         # load annots
         recs = {}
         for i, imagename in enumerate(imagenames):
-            recs[imagename] = parse_rec(annopath % (imagename),imgpath)
+            recs[imagename] = parse_rec(annopath,imgpath,imagename)
         # save
         # print('Saving cached annotations to {:s}'.format(cachefile))
         with open(cachefile, 'wb') as f:
@@ -342,6 +337,7 @@ cachedir: Directory for caching the annotations
     # extract gt objects for this class
     class_recs = {}
     npos = 0
+    
     for imagename in imagenames:
         R = [obj for obj in recs[imagename] if obj['name'] == classname]
 
@@ -556,7 +552,7 @@ if __name__ == '__main__':
     # load net
     num_classes = len(labelmap) + 1  # +a1 for background
     net = build_ssd('test', 300, num_classes)  # initialize SSD
-    net.load_state_dict(torch.load(args.trained_model))
+    net.load_state_dict(torch.load(args.trained_model, map_location=torch.device('cpu')))
     net.eval()
     # print('Finished loading model!')
     # load data
