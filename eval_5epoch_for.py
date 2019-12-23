@@ -44,7 +44,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = GPUID
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Evaluation')
 parser.add_argument('--trained_model',
-                    default=HOME + "/work/weights/ssd300_XRAY_10000.pth", type=str,
+                    default=HOME + "/work/ssd300_XRAY_10000.pth", type=str,
                     help='Trained state_dict file path to open')
 parser.add_argument(
     '--save_folder',
@@ -54,7 +54,7 @@ parser.add_argument('--confidence_threshold', default=0.2, type=float,
                     help='Detection confidence threshold')
 parser.add_argument('--top_k', default=5, type=int,
                     help='Further restrict the number of predictions to parse')
-parser.add_argument('--cuda', default=True, type=str2bool,
+parser.add_argument('--cuda', default=False, type=str2bool,
                     help='Use cuda to train model')
 parser.add_argument('--cleanup', default=True, type=str2bool,
                     help='Cleanup and remove results files following eval')
@@ -552,7 +552,7 @@ if __name__ == '__main__':
     # load net
     num_classes = len(labelmap) + 1  # +a1 for background
     net = build_ssd('test', 300, num_classes)  # initialize SSD
-    net.load_state_dict(torch.load(args.trained_model))
+    net.load_state_dict(torch.load(args.trained_model, map_location=torch.device('cpu')))
     net.eval()
     # print('Finished loading model!')
     # load data

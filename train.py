@@ -43,7 +43,7 @@ parser.add_argument(
     help="Checkpoint state_dict file to resume training from",
 )
 parser.add_argument(
-    "--start_iter", default=8500, type=int, help="Resume training at this iter"
+    "--start_iter", default=10000, type=int, help="Resume training at this iter"
 )
 parser.add_argument(
     "--num_workers", default=4, type=int, help="Number of workers used in dataloading"
@@ -94,7 +94,7 @@ def train():
     args.dataset_root = SIXray_ROOT + "train_data/"
     cfg = coco
     dataset = SIXrayDetection(
-        image_sets= args.image_full_path,
+        image_sets_path= args.image_full_path,
         annotation_sets_path = args.annotation_full_path,
         transform=SSDAugmentation(cfg["min_dim"], MEANS),
     )
@@ -223,7 +223,7 @@ def train():
                 "append",
             )
 
-        if iteration != 0 and iteration % 2000 == 0:
+        if iteration != 10000 and iteration % 2000 == 0:
             print("Saving state, iter:", iteration)
             torch.save(
                 ssd_net.state_dict(), "ssd300_XRAY_" + repr(iteration) + ".pth"

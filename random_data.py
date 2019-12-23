@@ -7,7 +7,7 @@ current_path = "./coreless_5000/"
 test_size = 1000
 
 train_path = "./train_data/"
-test_path = "./test_data/"
+test_path = HOME + "/work/test_data/"
 file_list = []
 
 print(test_path)
@@ -16,25 +16,36 @@ ids = []
 num_1 = 0
 num_2 = 0
 
-for root, dirs, files in os.walk(train_path + "Annotation"):
-    for file_name in files:
-        file_id = file_name.split(".")[0]
-        if file_id == "":
-            continue
-        with open(train_path + "Annotation/" + file_name, encoding="utf-8", mode="r") as f:
-            useful = False
-            for line in f.readlines():
-                if line.find(u" 带电芯") != -1:
-                    num_1 = num_1 + 1
-                    useful = True
-                if line.find(u" 不带电芯") != -1:
-                    num_2 = num_2 + 1
-                    useful = True
-            if useful == False:
-                ids.append(file_id)
-print(num_1)# 866
-print("=============\n")
-print(num_2) # 4297  ~ 1:5
+with open("test_data_id.txt", "w") as f:
+    for root, dirs, files in os.walk(test_path + "Annotation"):
+        for file_name in files:
+            print(file_name)
+            file_id = file_name.split(".")[0]
+            if file_id == "":
+                continue
+            f.write(file_id)
+            f.write("\n")
+
+
+# for root, dirs, files in os.walk(train_path + "Annotation"):
+#     for file_name in files:
+#         file_id = file_name.split(".")[0]
+#         if file_id == "":
+#             continue
+#         with open(train_path + "Annotation/" + file_name, encoding="utf-8", mode="r") as f:
+#             useful = False
+#             for line in f.readlines():
+#                 if line.find(u" 带电芯") != -1:
+#                     num_1 = num_1 + 1
+#                     useful = True
+#                 if line.find(u" 不带电芯") != -1:
+#                     num_2 = num_2 + 1
+#                     useful = True
+#             if useful == False:
+#                 ids.append(file_id)
+# print(num_1)# 866
+# print("=============\n")
+# print(num_2) # 4297  ~ 1:5
 
 # for id in ids:
 #     os.remove(train_path + "Annotation/" + id +".txt")
